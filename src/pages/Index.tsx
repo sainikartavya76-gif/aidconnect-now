@@ -8,12 +8,12 @@ const Index = () => {
   return (
     <MobileLayout>
       {/* Hero Section */}
-      <section className="text-center mb-8 animate-fade-in">
+      <section className="text-center mb-10 animate-fade-in">
         <h1 className="text-2xl font-bold text-foreground mb-3 leading-tight text-balance">
           Connecting Skills to Emergencies
         </h1>
-        <p className="text-muted-foreground text-base leading-relaxed mb-2">
-          A platform that matches verified citizen skills with nearby emergency needs.
+        <p className="text-muted-foreground text-base leading-relaxed mb-3">
+          During emergencies, the right help at the right time can save lives.
         </p>
         <p className="text-sm text-primary font-medium">
           Right Skill. Right Place. Right Time.
@@ -21,7 +21,7 @@ const Index = () => {
       </section>
 
       {/* CTA Buttons */}
-      <section className="space-y-3 mb-10">
+      <section className="space-y-4 mb-12">
         <Link to="/volunteer" className="block">
           <Button variant="hero" className="w-full">
             <UserPlus className="w-5 h-5" />
@@ -39,7 +39,7 @@ const Index = () => {
       {/* Feature Cards */}
       <section>
         <h2 className="section-title">How AidLink Works</h2>
-        <div className="space-y-4">
+        <div className="space-y-5">
           <FeatureCard
             icon={ShieldCheck}
             title="Trusted Volunteers"
@@ -48,14 +48,14 @@ const Index = () => {
           />
           <FeatureCard
             icon={Brain}
-            title="Smart Skill Matching"
-            description="Intelligent matching connects the right skills to the right emergencies instantly."
+            title="Rule-Based Smart Matching"
+            description="Connects the right skills to the right emergencies based on location, availability, and expertise."
             delay={200}
           />
           <FeatureCard
             icon={Radio}
-            title="Live Task Coordination"
-            description="Real-time tracking and communication for seamless emergency response."
+            title="Task Coordination"
+            description="Clear status tracking and communication for organized emergency response."
             delay={300}
           />
         </div>

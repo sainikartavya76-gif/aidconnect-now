@@ -64,8 +64,8 @@ const SmartMatching = () => {
         <h1 className="text-2xl font-bold text-foreground mb-2">
           Smart Matching
         </h1>
-        <p className="text-muted-foreground mb-6">
-          AI-powered volunteer matching for emergencies.
+        <p className="text-muted-foreground mb-8">
+          Rule-based volunteer matching for emergencies.
         </p>
 
         {/* Emergency Request Card */}
@@ -102,14 +102,14 @@ const SmartMatching = () => {
         </div>
 
         {/* Matched Volunteers */}
-        <div className="mb-4">
+        <div className="mb-5">
           <h2 className="section-title flex items-center gap-2">
             <User className="w-5 h-5 text-primary" />
             Matched Volunteers ({mockVolunteers.length})
           </h2>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-5">
           {mockVolunteers.map((volunteer, index) => (
             <div
               key={volunteer.id}
@@ -194,10 +194,10 @@ const SmartMatching = () => {
         </div>
 
         {/* Disclaimer */}
-        <div className="mt-6 p-4 bg-muted rounded-xl flex items-start gap-3">
+        <div className="mt-8 p-4 bg-muted rounded-xl flex items-start gap-3">
           <Info className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
           <p className="text-xs text-muted-foreground">
-            Matching logic shown using simulated data for demonstration. In production, this would use real-time location and availability data.
+            Data shown is simulated for prototype demonstration. Matching logic uses rule-based criteria: skill match, location proximity, and availability.
           </p>
         </div>
       </div>
