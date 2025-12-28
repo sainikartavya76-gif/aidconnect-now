@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,31 +7,37 @@ import { Textarea } from "@/components/ui/textarea";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { AlertTriangle, MapPin, CheckCircle2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useEmergencies } from "@/hooks/useLocalStorage";
 
 const emergencyTypes = [
-  { id: "flood", label: "Flood", icon: "🌊" },
-  { id: "fire", label: "Fire", icon: "🔥" },
-  { id: "medical", label: "Medical", icon: "🏥" },
-  { id: "accident", label: "Accident", icon: "🚗" },
-  { id: "infrastructure", label: "Infrastructure Damage", icon: "🏗️" },
-  { id: "other", label: "Other", icon: "⚠️" },
+  { id: "flood", labelKey: "flood", icon: "🌊" },
+  { id: "fire", labelKey: "fire", icon: "🔥" },
+  { id: "medical", labelKey: "medical", icon: "🏥" },
+  { id: "accident", labelKey: "accident", icon: "🚗" },
+  { id: "infrastructure", labelKey: "infrastructure", icon: "🏗️" },
+  { id: "other", labelKey: "other", icon: "⚠️" },
 ];
 
-const requiredSkills = [
-  "First Aid",
-  "Medical Help",
-  "Driving",
-  "Rescue Operations",
-  "Logistics",
-  "Electrical/Technical Support",
-  "Communication Support",
+const requiredSkillKeys = [
+  { key: "firstAid", value: "First Aid" },
+  { key: "medicalHelp", value: "Medical Help" },
+  { key: "driving", value: "Driving" },
+  { key: "rescueOperations", value: "Rescue Operations" },
+  { key: "logistics", value: "Logistics" },
+  { key: "technicalSupport", value: "Electrical/Technical Support" },
+  { key: "communicationSupport", value: "Communication Support" },
 ];
 
 const urgencyLevels = ["low", "medium", "high"] as const;
 
 const EmergencyRequest = () => {
+  const { t } = useLanguage();
+  const { addEmergency } = useEmergencies();
+  
   const [formData, setFormData] = useState({
     type: "",
+    typeLabel: "",
     location: "",
     skill: "",
     urgency: "" as "" | "low" | "medium" | "high",
@@ -38,19 +45,34 @@ const EmergencyRequest = () => {
   });
   const [submitted, setSubmitted] = useState(false);
 
+  const handleTypeSelect = (typeId: string, labelKey: string) => {
+    setFormData({ ...formData, type: typeId, typeLabel: t(labelKey) });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.type || !formData.location || !formData.skill || !formData.urgency) {
       toast({
-        title: "Please complete all required fields",
+        title: t("pleaseComplete"),
         variant: "destructive",
       });
       return;
     }
+    
+    // Save to localStorage
+    addEmergency({
+      type: formData.type,
+      typeLabel: formData.typeLabel,
+      location: formData.location,
+      skill: formData.skill,
+      urgency: formData.urgency,
+      description: formData.description,
+    });
+    
     setSubmitted(true);
     toast({
-      title: "Emergency Request Submitted",
-      description: "Matching volunteers will be notified.",
+      title: t("requestSubmitted"),
+      description: t("matchingVolunteers"),
     });
   };
 
@@ -62,47 +84,53 @@ const EmergencyRequest = () => {
             <CheckCircle2 className="w-10 h-10 text-success" />
           </div>
           <h1 className="text-2xl font-bold text-foreground mb-3">
-            Request Submitted!
+            {t("requestSubmitted")}
           </h1>
           <p className="text-muted-foreground mb-6 max-w-xs">
-            Your emergency request has been logged. Matching volunteers are being identified.
+            {t("matchingVolunteers")}
           </p>
           <div className="card-elevated w-full max-w-sm text-left">
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-medium text-muted-foreground">
-                Request Status
+                {t("requestStatus")}
               </span>
               <StatusBadge status="pending" />
             </div>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Type</span>
-                <span className="font-medium capitalize">{formData.type}</span>
+                <span className="text-muted-foreground">{t("type")}</span>
+                <span className="font-medium capitalize">{formData.typeLabel}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Location</span>
+                <span className="text-muted-foreground">{t("location")}</span>
                 <span className="font-medium">{formData.location}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Required Skill</span>
+                <span className="text-muted-foreground">{t("requiredSkill")}</span>
                 <span className="font-medium">{formData.skill}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Urgency</span>
+                <span className="text-muted-foreground">{t("urgencyLevel")}</span>
                 <StatusBadge urgency={formData.urgency as "low" | "medium" | "high"} />
               </div>
             </div>
           </div>
-          <Button
-            variant="outline"
-            className="mt-6"
-            onClick={() => {
-              setSubmitted(false);
-              setFormData({ type: "", location: "", skill: "", urgency: "", description: "" });
-            }}
-          >
-            Submit Another Request
-          </Button>
+          <div className="flex flex-col gap-3 mt-6 w-full max-w-sm">
+            <Link to="/matching">
+              <Button variant="hero" className="w-full">
+                {t("matching")} →
+              </Button>
+            </Link>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSubmitted(false);
+                setFormData({ type: "", typeLabel: "", location: "", skill: "", urgency: "", description: "" });
+              }}
+            >
+              {t("submitAnother")}
+            </Button>
+          </div>
         </div>
       </MobileLayout>
     );
@@ -116,23 +144,23 @@ const EmergencyRequest = () => {
             <AlertTriangle className="w-5 h-5 text-destructive" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">
-            Request Help
+            {t("emergencyTitle")}
           </h1>
         </div>
         <p className="text-muted-foreground mb-6">
-          Submit an emergency request for NGO or coordinator response.
+          {t("emergencySubtitle")}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Emergency Type */}
           <div>
-            <label className="form-label">Emergency Type</label>
+            <label className="form-label">{t("emergencyType")}</label>
             <div className="grid grid-cols-3 gap-3">
               {emergencyTypes.map((type) => (
                 <button
                   key={type.id}
                   type="button"
-                  onClick={() => setFormData({ ...formData, type: type.id })}
+                  onClick={() => handleTypeSelect(type.id, type.labelKey)}
                   className={`p-4 rounded-xl border-2 transition-all text-center ${
                     formData.type === type.id
                       ? "border-primary bg-primary/5"
@@ -140,7 +168,7 @@ const EmergencyRequest = () => {
                   }`}
                 >
                   <span className="text-2xl block mb-1">{type.icon}</span>
-                  <span className="text-xs font-medium text-foreground">{type.label}</span>
+                  <span className="text-xs font-medium text-foreground">{t(type.labelKey)}</span>
                 </button>
               ))}
             </div>
@@ -148,12 +176,12 @@ const EmergencyRequest = () => {
 
           {/* Location */}
           <div>
-            <label className="form-label">Location</label>
+            <label className="form-label">{t("location")}</label>
             <div className="relative">
               <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Enter location or address"
+                placeholder={t("enterLocation")}
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 className="input-mobile pl-12"
@@ -163,20 +191,20 @@ const EmergencyRequest = () => {
 
           {/* Required Skill */}
           <div>
-            <label className="form-label">Required Skill</label>
+            <label className="form-label">{t("requiredSkill")}</label>
             <div className="flex flex-wrap gap-2">
-              {requiredSkills.map((skill) => (
+              {requiredSkillKeys.map(({ key, value }) => (
                 <button
-                  key={skill}
+                  key={value}
                   type="button"
-                  onClick={() => setFormData({ ...formData, skill })}
+                  onClick={() => setFormData({ ...formData, skill: value })}
                   className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
-                    formData.skill === skill
+                    formData.skill === value
                       ? "border-primary bg-primary/5 text-primary"
                       : "border-border bg-card text-foreground hover:border-muted-foreground/30"
                   }`}
                 >
-                  {skill}
+                  {t(key)}
                 </button>
               ))}
             </div>
@@ -184,7 +212,7 @@ const EmergencyRequest = () => {
 
           {/* Urgency Level */}
           <div>
-            <label className="form-label">Urgency Level</label>
+            <label className="form-label">{t("urgencyLevel")}</label>
             <div className="grid grid-cols-3 gap-3">
               {urgencyLevels.map((level) => (
                 <button
@@ -209,9 +237,9 @@ const EmergencyRequest = () => {
 
           {/* Description */}
           <div>
-            <label className="form-label">Additional Details (Optional)</label>
+            <label className="form-label">{t("additionalDetails")}</label>
             <Textarea
-              placeholder="Describe the emergency situation..."
+              placeholder={t("describeEmergency")}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="min-h-[100px] text-base rounded-xl"
@@ -221,7 +249,7 @@ const EmergencyRequest = () => {
           {/* Submit Button */}
           <Button type="submit" variant="hero" className="w-full">
             <AlertTriangle className="w-5 h-5" />
-            Submit Emergency Request
+            {t("submitRequest")}
           </Button>
         </form>
       </div>

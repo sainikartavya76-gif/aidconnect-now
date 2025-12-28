@@ -3,20 +3,23 @@ import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Button } from "@/components/ui/button";
 import { FeatureCard } from "@/components/ui/FeatureCard";
 import { UserPlus, AlertTriangle, ShieldCheck, Brain, Radio } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
+  const { t } = useLanguage();
+
   return (
     <MobileLayout>
       {/* Hero Section */}
       <section className="text-center mb-10 animate-fade-in">
         <h1 className="text-2xl font-bold text-foreground mb-3 leading-tight text-balance">
-          Connecting Skills to Emergencies
+          {t("heroTitle")}
         </h1>
         <p className="text-muted-foreground text-base leading-relaxed mb-3">
-          During emergencies, the right help at the right time can save lives.
+          {t("heroSubtitle")}
         </p>
         <p className="text-sm text-primary font-medium">
-          Right Skill. Right Place. Right Time.
+          {t("tagline")}
         </p>
       </section>
 
@@ -25,37 +28,37 @@ const Index = () => {
         <Link to="/volunteer" className="block">
           <Button variant="hero" className="w-full">
             <UserPlus className="w-5 h-5" />
-            Become a Volunteer
+            {t("becomeVolunteer")}
           </Button>
         </Link>
         <Link to="/emergency" className="block">
           <Button variant="hero-outline" className="w-full">
             <AlertTriangle className="w-5 h-5" />
-            Request Emergency Help
+            {t("requestHelp")}
           </Button>
         </Link>
       </section>
 
       {/* Feature Cards */}
       <section>
-        <h2 className="section-title">How AidLink Works</h2>
+        <h2 className="section-title">{t("howItWorks")}</h2>
         <div className="space-y-5">
           <FeatureCard
             icon={ShieldCheck}
-            title="Trusted Volunteers"
-            description="Verified citizens with validated skills ready to respond when needed most."
+            title={t("trustedVolunteers")}
+            description={t("trustedVolunteersDesc")}
             delay={100}
           />
           <FeatureCard
             icon={Brain}
-            title="Rule-Based Smart Matching"
-            description="Connects the right skills to the right emergencies based on location, availability, and expertise."
+            title={t("smartMatching")}
+            description={t("smartMatchingDesc")}
             delay={200}
           />
           <FeatureCard
             icon={Radio}
-            title="Task Coordination"
-            description="Clear status tracking and communication for organized emergency response."
+            title={t("taskCoordination")}
+            description={t("taskCoordinationDesc")}
             delay={300}
           />
         </div>
@@ -66,7 +69,7 @@ const Index = () => {
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted">
           <div className="w-2 h-2 rounded-full bg-success animate-pulse-gentle" />
           <span className="text-sm text-muted-foreground">
-            Prototype for hackathon demonstration
+            {t("prototypeDemo")}
           </span>
         </div>
       </section>
