@@ -48,7 +48,7 @@ const About = () => {
               <h2 className="font-semibold text-foreground">Our Solution</h2>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              AidLink is a prototype platform that demonstrates how skilled citizens can be efficiently connected to emergency and civic needs. Our smart matching system considers skills, location, and availability to ensure the right help reaches the right place at the right time.
+              AidLink is a prototype platform that demonstrates how skilled citizens can be efficiently connected to emergency and civic needs. Our rule-based matching system considers skills, location, and availability to ensure the right help reaches the right place at the right time.
             </p>
           </div>
         </section>
@@ -119,8 +119,11 @@ const About = () => {
           <p className="text-sm text-foreground font-medium mb-1">
             Hackathon Prototype
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mb-2">
             AidLink is a hackathon prototype focused on emergency coordination and skill-based response. This is a demonstration of the concept, not a production application.
+          </p>
+          <p className="text-xs text-muted-foreground font-medium">
+            All data and workflows shown are simulated for hackathon demonstration.
           </p>
         </div>
       </div>

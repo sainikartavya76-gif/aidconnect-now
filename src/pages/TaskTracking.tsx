@@ -2,7 +2,7 @@ import { useState } from "react";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { Check, Clock, User, MapPin, ArrowRight } from "lucide-react";
+import { Check, Clock, User, MapPin, ArrowRight, Info } from "lucide-react";
 
 type TaskStatus = "assigned" | "in-progress" | "completed";
 
@@ -89,7 +89,7 @@ const TaskTracking = () => {
         <h1 className="text-2xl font-bold text-foreground mb-2">
           Task Tracking
         </h1>
-        <p className="text-muted-foreground mb-6">
+        <p className="text-muted-foreground mb-8">
           Monitor and coordinate emergency response tasks.
         </p>
 
@@ -130,7 +130,7 @@ const TaskTracking = () => {
         </div>
 
         {/* Task Cards */}
-        <div className="space-y-4">
+        <div className="space-y-5">
           {tasks.map((task, index) => (
             <div
               key={task.id}
@@ -218,6 +218,14 @@ const TaskTracking = () => {
               )}
             </div>
           ))}
+        </div>
+
+        {/* Disclaimer */}
+        <div className="mt-8 p-4 bg-muted rounded-xl flex items-start gap-3">
+          <Info className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-muted-foreground">
+            Data shown is simulated for prototype demonstration.
+          </p>
         </div>
       </div>
     </MobileLayout>
