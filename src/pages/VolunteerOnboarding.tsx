@@ -7,18 +7,23 @@ import { Switch } from "@/components/ui/switch";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Upload, CheckCircle2, User, MapPin } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useVolunteers } from "@/hooks/useLocalStorage";
 
-const skills = [
-  "First Aid",
-  "Medical Help",
-  "Driving",
-  "Rescue Operations",
-  "Logistics",
-  "Electrical/Technical Support",
-  "Communication Support",
+const skillKeys = [
+  { key: "firstAid", value: "First Aid" },
+  { key: "medicalHelp", value: "Medical Help" },
+  { key: "driving", value: "Driving" },
+  { key: "rescueOperations", value: "Rescue Operations" },
+  { key: "logistics", value: "Logistics" },
+  { key: "technicalSupport", value: "Electrical/Technical Support" },
+  { key: "communicationSupport", value: "Communication Support" },
 ];
 
 const VolunteerOnboarding = () => {
+  const { t } = useLanguage();
+  const { addVolunteer } = useVolunteers();
+  
   const [formData, setFormData] = useState({
     name: "",
     city: "",
@@ -41,16 +46,25 @@ const VolunteerOnboarding = () => {
     e.preventDefault();
     if (!formData.name || !formData.city || formData.skills.length === 0) {
       toast({
-        title: "Please complete all fields",
-        description: "Name, city, and at least one skill are required.",
+        title: t("pleaseComplete"),
+        description: t("requiredFields"),
         variant: "destructive",
       });
       return;
     }
+    
+    // Save to localStorage
+    addVolunteer({
+      name: formData.name,
+      city: formData.city,
+      skills: formData.skills,
+      available: formData.available,
+    });
+    
     setSubmitted(true);
     toast({
-      title: "Registration Submitted!",
-      description: "Your volunteer profile is under review.",
+      title: t("registrationComplete"),
+      description: t("thankYouVolunteer"),
     });
   };
 
@@ -62,33 +76,43 @@ const VolunteerOnboarding = () => {
             <CheckCircle2 className="w-10 h-10 text-success" />
           </div>
           <h1 className="text-2xl font-bold text-foreground mb-3">
-            Registration Complete!
+            {t("registrationComplete")}
           </h1>
           <p className="text-muted-foreground mb-6 max-w-xs">
-            Thank you for volunteering. Your profile is under review and will be verified shortly.
+            {t("thankYouVolunteer")}
           </p>
           <div className="card-elevated w-full max-w-sm">
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-medium text-muted-foreground">
-                Verification Status
+                {t("verificationStatus")}
               </span>
               <StatusBadge status="pending" />
             </div>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Name</span>
+                <span className="text-muted-foreground">{t("name")}</span>
                 <span className="font-medium">{formData.name}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">City</span>
+                <span className="text-muted-foreground">{t("city")}</span>
                 <span className="font-medium">{formData.city}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Skills</span>
+                <span className="text-muted-foreground">{t("skills")}</span>
                 <span className="font-medium text-right">{formData.skills.length} selected</span>
               </div>
             </div>
           </div>
+          <Button
+            variant="outline"
+            className="mt-6"
+            onClick={() => {
+              setSubmitted(false);
+              setFormData({ name: "", city: "", skills: [], available: true, certificateUploaded: false });
+            }}
+          >
+            {t("becomeVolunteer")}
+          </Button>
         </div>
       </MobileLayout>
     );
@@ -98,21 +122,21 @@ const VolunteerOnboarding = () => {
     <MobileLayout>
       <div className="animate-fade-in">
         <h1 className="text-2xl font-bold text-foreground mb-2">
-          Become a Volunteer
+          {t("volunteerTitle")}
         </h1>
         <p className="text-muted-foreground mb-6">
-          Register your skills to help during emergencies.
+          {t("volunteerSubtitle")}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name Input */}
           <div>
-            <label className="form-label">Full Name</label>
+            <label className="form-label">{t("fullName")}</label>
             <div className="relative">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Enter your name"
+                placeholder={t("enterName")}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="input-mobile pl-12"
@@ -122,12 +146,12 @@ const VolunteerOnboarding = () => {
 
           {/* City Input */}
           <div>
-            <label className="form-label">City</label>
+            <label className="form-label">{t("city")}</label>
             <div className="relative">
               <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Enter your city"
+                placeholder={t("enterCity")}
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                 className="input-mobile pl-12"
@@ -137,22 +161,22 @@ const VolunteerOnboarding = () => {
 
           {/* Skills Selection */}
           <div>
-            <label className="form-label">Select Your Skills</label>
+            <label className="form-label">{t("selectSkills")}</label>
             <div className="grid grid-cols-1 gap-3">
-              {skills.map((skill) => (
+              {skillKeys.map(({ key, value }) => (
                 <label
-                  key={skill}
+                  key={value}
                   className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all cursor-pointer ${
-                    formData.skills.includes(skill)
+                    formData.skills.includes(value)
                       ? "border-primary bg-primary/5"
                       : "border-border bg-card hover:border-muted-foreground/30"
                   }`}
                 >
                   <Checkbox
-                    checked={formData.skills.includes(skill)}
-                    onCheckedChange={() => handleSkillToggle(skill)}
+                    checked={formData.skills.includes(value)}
+                    onCheckedChange={() => handleSkillToggle(value)}
                   />
-                  <span className="font-medium text-foreground">{skill}</span>
+                  <span className="font-medium text-foreground">{t(key)}</span>
                 </label>
               ))}
             </div>
@@ -162,9 +186,9 @@ const VolunteerOnboarding = () => {
           <div className="card-elevated">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-medium text-foreground">Availability Status</h3>
+                <h3 className="font-medium text-foreground">{t("availabilityStatus")}</h3>
                 <p className="text-sm text-muted-foreground">
-                  {formData.available ? "You're available for tasks" : "You're currently on duty"}
+                  {formData.available ? t("availableForTasks") : t("currentlyBusy")}
                 </p>
               </div>
               <Switch
@@ -178,12 +202,12 @@ const VolunteerOnboarding = () => {
 
           {/* Certificate Upload */}
           <div>
-            <label className="form-label">Skill Verification (Optional)</label>
+            <label className="form-label">{t("skillVerification")}</label>
             <button
               type="button"
               onClick={() => {
                 setFormData({ ...formData, certificateUploaded: true });
-                toast({ title: "File uploaded", description: "Certificate added for verification." });
+                toast({ title: t("certificateUploaded"), description: "" });
               }}
               className={`w-full p-6 rounded-xl border-2 border-dashed transition-all ${
                 formData.certificateUploaded
@@ -195,12 +219,12 @@ const VolunteerOnboarding = () => {
                 {formData.certificateUploaded ? (
                   <>
                     <CheckCircle2 className="w-8 h-8 text-success" />
-                    <span className="text-success font-medium">Certificate Uploaded</span>
+                    <span className="text-success font-medium">{t("certificateUploaded")}</span>
                   </>
                 ) : (
                   <>
                     <Upload className="w-8 h-8 text-muted-foreground" />
-                    <span className="text-muted-foreground">Upload certificate or ID</span>
+                    <span className="text-muted-foreground">{t("uploadCertificate")}</span>
                   </>
                 )}
               </div>
@@ -209,7 +233,7 @@ const VolunteerOnboarding = () => {
 
           {/* Submit Button */}
           <Button type="submit" variant="hero" className="w-full">
-            Register as Volunteer
+            {t("registerAsVolunteer")}
           </Button>
         </form>
       </div>
