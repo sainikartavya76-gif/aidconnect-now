@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { Check, MapPin, Clock, User, AlertTriangle, Info, ChevronDown, ChevronUp, Sparkles, Shield, Navigation, Zap } from "lucide-react";
+import { LocationMap } from "@/components/ui/LocationMap";
+import { Check, MapPin, Clock, User, AlertTriangle, Info, ChevronDown, ChevronUp, Sparkles, Shield, Navigation, Zap, Map } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { 
@@ -32,6 +33,7 @@ const SmartMatching = () => {
   const [assignedVolunteers, setAssignedVolunteers] = useState<Record<string, string>>({});
   const [expandedEmergency, setExpandedEmergency] = useState<string | null>(null);
   const [assigningId, setAssigningId] = useState<string | null>(null);
+  const [showMap, setShowMap] = useState(true);
 
   // Refresh data on mount
   useEffect(() => {
@@ -106,6 +108,23 @@ const SmartMatching = () => {
     return "text-warning";
   };
 
+  // Prepare map data
+  const emergencyMapData = pendingEmergencies
+    .filter(e => e.coordinates)
+    .map(e => ({
+      lat: e.coordinates!.lat,
+      lng: e.coordinates!.lng,
+      label: e.typeLabel || e.type,
+    }));
+
+  const volunteerMapData = volunteers
+    .filter(v => v.available && v.coordinates)
+    .map(v => ({
+      lat: v.coordinates!.lat,
+      lng: v.coordinates!.lng,
+      label: v.name,
+    }));
+
   return (
     <MobileLayout>
       <div className="animate-fade-in">
@@ -125,7 +144,7 @@ const SmartMatching = () => {
         </div>
         
         {/* Stats Bar */}
-        <div className="flex gap-3 mb-6 mt-4">
+        <div className="flex gap-3 mb-4 mt-4">
           <div className="flex-1 p-3 rounded-xl bg-destructive/5 border border-destructive/10 text-center">
             <div className="text-xl font-bold text-destructive">{stats.pendingEmergencies}</div>
             <div className="text-xs text-muted-foreground">Pending</div>
@@ -138,6 +157,29 @@ const SmartMatching = () => {
             <div className="text-xl font-bold text-primary">{stats.totalTasks}</div>
             <div className="text-xs text-muted-foreground">Tasks</div>
           </div>
+        </div>
+
+        {/* Live Map */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Map className="w-4 h-4 text-primary" />
+              Live Overview
+            </h3>
+            <button
+              onClick={() => setShowMap(!showMap)}
+              className="text-xs text-primary font-medium"
+            >
+              {showMap ? "Hide" : "Show"}
+            </button>
+          </div>
+          {showMap && (
+            <LocationMap
+              emergencies={emergencyMapData}
+              volunteers={volunteerMapData}
+              className="h-48"
+            />
+          )}
         </div>
 
         {/* No Emergencies State */}
@@ -184,6 +226,12 @@ const SmartMatching = () => {
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <Clock className="w-3 h-3" />
                         {getTimeAgo(emergency.createdAt)}
+                        {emergency.reportedBy && (
+                          <>
+                            <span>•</span>
+                            <span>{emergency.reportedBy}</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

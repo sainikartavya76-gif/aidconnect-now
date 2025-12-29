@@ -9,6 +9,8 @@ export interface Volunteer {
   verified: boolean;
   createdAt: string;
   tasksCompleted?: number;
+  phone?: string;
+  coordinates?: { lat: number; lng: number };
 }
 
 export interface EmergencyRequest {
@@ -21,6 +23,8 @@ export interface EmergencyRequest {
   description: string;
   createdAt: string;
   status: "pending" | "assigned" | "resolved";
+  coordinates?: { lat: number; lng: number };
+  reportedBy?: string;
 }
 
 export interface Task {
@@ -35,57 +39,86 @@ export interface Task {
   updatedAt: string;
 }
 
-// Rich seed data for impressive demo
+// Real-world Delhi NCR coordinates
+const delhiNCRLocations = {
+  "Connaught Place, New Delhi": { lat: 28.6315, lng: 77.2167 },
+  "Sector 18, Noida": { lat: 28.5700, lng: 77.3210 },
+  "Sector 15, Noida": { lat: 28.5850, lng: 77.3150 },
+  "Sector 62, Noida": { lat: 28.6270, lng: 77.3650 },
+  "Dwarka Sector 21, New Delhi": { lat: 28.5520, lng: 77.0580 },
+  "Gurugram Cyber City": { lat: 28.4949, lng: 77.0887 },
+  "Indirapuram, Ghaziabad": { lat: 28.6410, lng: 77.3580 },
+  "Lajpat Nagar, New Delhi": { lat: 28.5650, lng: 77.2430 },
+  "Saket, New Delhi": { lat: 28.5245, lng: 77.2066 },
+  "Vaishali, Ghaziabad": { lat: 28.6450, lng: 77.3420 },
+  "Greater Noida West": { lat: 28.5930, lng: 77.4280 },
+  "Faridabad Sector 15": { lat: 28.3910, lng: 77.3100 },
+  "Rohini Sector 7, New Delhi": { lat: 28.7150, lng: 77.1140 },
+  "Janakpuri, New Delhi": { lat: 28.6280, lng: 77.0890 },
+  "Karol Bagh, New Delhi": { lat: 28.6520, lng: 77.1900 },
+};
+
+// Rich seed data with real-world Delhi NCR volunteers
 const seedVolunteers: Volunteer[] = [
   {
     id: "v1",
-    name: "Rahul Sharma",
+    name: "Dr. Rahul Sharma",
     city: "Noida",
     skills: ["First Aid", "Medical Help"],
     available: true,
     verified: true,
     createdAt: new Date(Date.now() - 86400000 * 30).toISOString(),
     tasksCompleted: 12,
+    phone: "+91 98765 43210",
+    coordinates: { lat: 28.5850, lng: 77.3150 },
   },
   {
     id: "v2",
     name: "Priya Singh",
-    city: "Delhi",
+    city: "New Delhi",
     skills: ["First Aid", "Driving"],
     available: true,
     verified: true,
     createdAt: new Date(Date.now() - 86400000 * 25).toISOString(),
     tasksCompleted: 8,
+    phone: "+91 98765 43211",
+    coordinates: { lat: 28.6315, lng: 77.2167 },
   },
   {
     id: "v3",
-    name: "Amit Kumar",
+    name: "Amit Kumar (NDRF)",
     city: "Noida",
     skills: ["Rescue Operations", "Logistics"],
     available: true,
     verified: true,
     createdAt: new Date(Date.now() - 86400000 * 20).toISOString(),
     tasksCompleted: 15,
+    phone: "+91 98765 43212",
+    coordinates: { lat: 28.5700, lng: 77.3210 },
   },
   {
     id: "v4",
-    name: "Sneha Gupta",
-    city: "Gurgaon",
+    name: "Dr. Sneha Gupta",
+    city: "Gurugram",
     skills: ["Medical Help", "Communication Support"],
     available: true,
     verified: true,
     createdAt: new Date(Date.now() - 86400000 * 18).toISOString(),
     tasksCompleted: 6,
+    phone: "+91 98765 43213",
+    coordinates: { lat: 28.4949, lng: 77.0887 },
   },
   {
     id: "v5",
-    name: "Vikram Patel",
-    city: "Delhi",
+    name: "Vikram Patel (Fire Dept.)",
+    city: "New Delhi",
     skills: ["Rescue Operations", "First Aid", "Driving"],
     available: true,
     verified: true,
     createdAt: new Date(Date.now() - 86400000 * 15).toISOString(),
     tasksCompleted: 22,
+    phone: "+91 98765 43214",
+    coordinates: { lat: 28.5650, lng: 77.2430 },
   },
   {
     id: "v6",
@@ -96,6 +129,8 @@ const seedVolunteers: Volunteer[] = [
     verified: true,
     createdAt: new Date(Date.now() - 86400000 * 12).toISOString(),
     tasksCompleted: 9,
+    phone: "+91 98765 43215",
+    coordinates: { lat: 28.6270, lng: 77.3650 },
   },
   {
     id: "v7",
@@ -106,26 +141,32 @@ const seedVolunteers: Volunteer[] = [
     verified: true,
     createdAt: new Date(Date.now() - 86400000 * 10).toISOString(),
     tasksCompleted: 5,
+    phone: "+91 98765 43216",
+    coordinates: { lat: 28.3910, lng: 77.3100 },
   },
   {
     id: "v8",
-    name: "Kavita Joshi",
-    city: "Delhi",
+    name: "Dr. Kavita Joshi",
+    city: "New Delhi",
     skills: ["Medical Help", "First Aid"],
     available: true,
     verified: true,
     createdAt: new Date(Date.now() - 86400000 * 8).toISOString(),
     tasksCompleted: 11,
+    phone: "+91 98765 43217",
+    coordinates: { lat: 28.5245, lng: 77.2066 },
   },
   {
     id: "v9",
-    name: "Suresh Nair",
+    name: "Suresh Nair (Electrician)",
     city: "Ghaziabad",
     skills: ["Rescue Operations", "Electrical/Technical Support"],
     available: true,
     verified: false,
     createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
     tasksCompleted: 3,
+    phone: "+91 98765 43218",
+    coordinates: { lat: 28.6410, lng: 77.3580 },
   },
   {
     id: "v10",
@@ -136,95 +177,162 @@ const seedVolunteers: Volunteer[] = [
     verified: true,
     createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
     tasksCompleted: 7,
+    phone: "+91 98765 43219",
+    coordinates: { lat: 28.5930, lng: 77.4280 },
   },
   {
     id: "v11",
-    name: "Arjun Mehta",
-    city: "Delhi",
+    name: "Arjun Mehta (Ambulance)",
+    city: "New Delhi",
     skills: ["Driving", "Logistics", "First Aid"],
     available: true,
     verified: true,
     createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
     tasksCompleted: 18,
+    phone: "+91 98765 43220",
+    coordinates: { lat: 28.6520, lng: 77.1900 },
   },
   {
     id: "v12",
-    name: "Pooja Sharma",
-    city: "Gurgaon",
+    name: "Pooja Sharma (Nurse)",
+    city: "Gurugram",
     skills: ["Medical Help", "Communication Support"],
     available: false,
     verified: true,
     createdAt: new Date(Date.now() - 86400000).toISOString(),
     tasksCompleted: 4,
+    phone: "+91 98765 43221",
+    coordinates: { lat: 28.4590, lng: 77.0266 },
+  },
+  {
+    id: "v13",
+    name: "Rajesh Tiwari (Police)",
+    city: "New Delhi",
+    skills: ["Rescue Operations", "Communication Support", "Driving"],
+    available: true,
+    verified: true,
+    createdAt: new Date(Date.now() - 86400000 * 7).toISOString(),
+    tasksCompleted: 25,
+    phone: "+91 98765 43222",
+    coordinates: { lat: 28.7150, lng: 77.1140 },
+  },
+  {
+    id: "v14",
+    name: "Sunita Devi",
+    city: "Ghaziabad",
+    skills: ["First Aid", "Logistics"],
+    available: true,
+    verified: true,
+    createdAt: new Date(Date.now() - 86400000 * 4).toISOString(),
+    tasksCompleted: 6,
+    phone: "+91 98765 43223",
+    coordinates: { lat: 28.6450, lng: 77.3420 },
+  },
+  {
+    id: "v15",
+    name: "Deepak Singh (PWD)",
+    city: "New Delhi",
+    skills: ["Electrical/Technical Support", "Logistics"],
+    available: true,
+    verified: true,
+    createdAt: new Date(Date.now() - 86400000 * 6).toISOString(),
+    tasksCompleted: 14,
+    phone: "+91 98765 43224",
+    coordinates: { lat: 28.6280, lng: 77.0890 },
   },
 ];
 
+// Real-world emergency scenarios in Delhi NCR
 const seedEmergencies: EmergencyRequest[] = [
   {
     id: "e1",
     type: "medical",
-    typeLabel: "Medical",
-    location: "Sector 15, Noida",
+    typeLabel: "Medical Emergency",
+    location: "Sector 18 Metro Station, Noida",
     skill: "First Aid",
     urgency: "high",
-    description: "Person injured in road accident, requires immediate first aid assistance.",
+    description: "Senior citizen collapsed near metro gate. Conscious but needs immediate medical assistance. Family has been notified.",
     createdAt: new Date(Date.now() - 300000).toISOString(),
     status: "pending",
+    coordinates: { lat: 28.5700, lng: 77.3210 },
+    reportedBy: "Metro Security",
   },
   {
     id: "e2",
     type: "fire",
-    typeLabel: "Fire",
-    location: "Connaught Place, Delhi",
+    typeLabel: "Fire Emergency",
+    location: "Connaught Place Block A, New Delhi",
     skill: "Rescue Operations",
     urgency: "high",
-    description: "Small fire in commercial building, evacuation support needed.",
+    description: "Fire reported in 3rd floor office. Fire brigade en route. Need volunteers for crowd control and evacuation support.",
     createdAt: new Date(Date.now() - 600000).toISOString(),
     status: "pending",
+    coordinates: { lat: 28.6315, lng: 77.2167 },
+    reportedBy: "Building Security",
   },
   {
     id: "e3",
     type: "flood",
-    typeLabel: "Flood",
-    location: "Sector 62, Noida",
+    typeLabel: "Waterlogging",
+    location: "Sector 62 Industrial Area, Noida",
     skill: "Logistics",
     urgency: "medium",
-    description: "Waterlogging in residential area, need help with supply distribution.",
+    description: "Heavy waterlogging after monsoon rain. Several vehicles stuck. Need help with traffic management and supply distribution to affected workers.",
     createdAt: new Date(Date.now() - 1800000).toISOString(),
     status: "pending",
+    coordinates: { lat: 28.6270, lng: 77.3650 },
+    reportedBy: "Traffic Police",
   },
   {
     id: "e4",
     type: "infrastructure",
-    typeLabel: "Infrastructure",
-    location: "Dwarka, Delhi",
+    typeLabel: "Power Outage",
+    location: "Fortis Hospital, Dwarka",
     skill: "Electrical/Technical Support",
-    urgency: "medium",
-    description: "Power outage affecting hospital backup systems.",
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
+    urgency: "high",
+    description: "Main power grid failure. Backup generators running but need electrical support for critical equipment. Hospital has 50+ patients in ICU.",
+    createdAt: new Date(Date.now() - 900000).toISOString(),
     status: "pending",
+    coordinates: { lat: 28.5520, lng: 77.0580 },
+    reportedBy: "Hospital Admin",
   },
   {
     id: "e5",
     type: "accident",
-    typeLabel: "Accident",
-    location: "NH-24, Ghaziabad",
+    typeLabel: "Road Accident",
+    location: "NH-24 Near Akshardham, New Delhi",
     skill: "Medical Help",
     urgency: "high",
-    description: "Multi-vehicle collision, medical professionals needed urgently.",
-    createdAt: new Date(Date.now() - 900000).toISOString(),
+    description: "Multi-vehicle pile-up on highway. 3 injured, ambulances dispatched. Need medical volunteers for first response until ambulances arrive.",
+    createdAt: new Date(Date.now() - 450000).toISOString(),
     status: "pending",
+    coordinates: { lat: 28.6127, lng: 77.2773 },
+    reportedBy: "Highway Patrol",
+  },
+  {
+    id: "e6",
+    type: "medical",
+    typeLabel: "Medical Camp Support",
+    location: "Gurugram Cyber City",
+    skill: "Medical Help",
+    urgency: "low",
+    description: "Health camp organized by corporate. Need certified medical volunteers to assist with basic health checkups for 200+ employees.",
+    createdAt: new Date(Date.now() - 7200000).toISOString(),
+    status: "pending",
+    coordinates: { lat: 28.4949, lng: 77.0887 },
+    reportedBy: "HR Department",
   },
 ];
 
+// Pre-existing tasks for demo
 const seedTasks: Task[] = [
   {
     id: "t1",
     emergencyId: "demo1",
-    emergencyType: "Medical",
-    location: "Sector 18, Noida",
+    emergencyType: "Medical Emergency",
+    location: "Saket District Centre, New Delhi",
     volunteerId: "v1",
-    volunteerName: "Rahul Sharma",
+    volunteerName: "Dr. Rahul Sharma",
     status: "in-progress",
     assignedAt: "2:30 PM",
     updatedAt: "2:45 PM",
@@ -232,13 +340,24 @@ const seedTasks: Task[] = [
   {
     id: "t2",
     emergencyId: "demo2",
-    emergencyType: "Rescue",
-    location: "Lajpat Nagar, Delhi",
+    emergencyType: "Rescue Operation",
+    location: "Lajpat Nagar Market, New Delhi",
     volunteerId: "v5",
     volunteerName: "Vikram Patel",
     status: "completed",
     assignedAt: "11:00 AM",
     updatedAt: "1:30 PM",
+  },
+  {
+    id: "t3",
+    emergencyId: "demo3",
+    emergencyType: "Logistics Support",
+    location: "Indirapuram, Ghaziabad",
+    volunteerId: "v3",
+    volunteerName: "Amit Kumar",
+    status: "assigned",
+    assignedAt: "3:15 PM",
+    updatedAt: "3:15 PM",
   },
 ];
 
@@ -383,7 +502,20 @@ export function useTasks() {
   return { tasks, addTask, updateTaskStatus, refreshTasks };
 }
 
-// Matching logic with improved scoring
+// Real distance calculation using Haversine formula
+export function calculateRealDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+// Matching logic with real distance calculation
 export function calculateMatchScore(volunteer: Volunteer, emergency: EmergencyRequest): number {
   let score = 0;
   
@@ -402,32 +534,54 @@ export function calculateMatchScore(volunteer: Volunteer, emergency: EmergencyRe
     score += 15;
   }
   
-  // Location proximity simulation (20 points max)
-  const volunteerCity = volunteer.city.toLowerCase();
-  const emergencyLocation = emergency.location.toLowerCase();
-  if (emergencyLocation.includes(volunteerCity) || volunteerCity.includes("noida") || volunteerCity.includes("delhi")) {
-    score += 20;
-  } else if (volunteerCity.includes("gurgaon") || volunteerCity.includes("ghaziabad") || volunteerCity.includes("faridabad")) {
-    score += 15;
+  // Real distance calculation (20 points max)
+  if (volunteer.coordinates && emergency.coordinates) {
+    const distance = calculateRealDistance(
+      volunteer.coordinates.lat,
+      volunteer.coordinates.lng,
+      emergency.coordinates.lat,
+      emergency.coordinates.lng
+    );
+    
+    if (distance < 3) score += 20;
+    else if (distance < 5) score += 15;
+    else if (distance < 10) score += 10;
+    else if (distance < 20) score += 5;
   } else {
-    score += 8;
+    // Fallback location matching
+    const volunteerCity = volunteer.city.toLowerCase();
+    const emergencyLocation = emergency.location.toLowerCase();
+    if (emergencyLocation.includes(volunteerCity) || volunteerCity.includes("noida") || volunteerCity.includes("delhi")) {
+      score += 15;
+    } else {
+      score += 8;
+    }
   }
   
   return Math.min(score, 100);
 }
 
 export function getMockDistance(volunteer: Volunteer, emergency: EmergencyRequest): string {
+  if (volunteer.coordinates && emergency.coordinates) {
+    const distance = calculateRealDistance(
+      volunteer.coordinates.lat,
+      volunteer.coordinates.lng,
+      emergency.coordinates.lat,
+      emergency.coordinates.lng
+    );
+    return `${distance.toFixed(1)} km`;
+  }
+  
+  // Fallback
   const volunteerCity = volunteer.city.toLowerCase();
   const emergencyLocation = emergency.location.toLowerCase();
   
   if (emergencyLocation.includes(volunteerCity)) {
-    return `${(Math.random() * 1.5 + 0.3).toFixed(1)} km`;
+    return `${(Math.random() * 1.5 + 0.5).toFixed(1)} km`;
   } else if (volunteerCity.includes("delhi") || volunteerCity.includes("noida")) {
-    return `${(Math.random() * 3 + 1).toFixed(1)} km`;
-  } else if (volunteerCity.includes("gurgaon") || volunteerCity.includes("ghaziabad")) {
-    return `${(Math.random() * 5 + 2).toFixed(1)} km`;
+    return `${(Math.random() * 4 + 2).toFixed(1)} km`;
   }
-  return `${(Math.random() * 8 + 4).toFixed(1)} km`;
+  return `${(Math.random() * 10 + 5).toFixed(1)} km`;
 }
 
 // Stats calculation
@@ -451,3 +605,6 @@ export function useStats() {
 
   return stats;
 }
+
+// Export locations for map
+export { delhiNCRLocations };

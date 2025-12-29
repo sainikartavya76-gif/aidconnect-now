@@ -5,18 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { AlertTriangle, MapPin, CheckCircle2, ArrowRight, Siren, Clock, Users } from "lucide-react";
+import { LocationMap } from "@/components/ui/LocationMap";
+import { AlertTriangle, MapPin, CheckCircle2, ArrowRight, Siren, Clock, Users, Map } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useEmergencies, useStats } from "@/hooks/useLocalStorage";
+import { useEmergencies, useStats, delhiNCRLocations } from "@/hooks/useLocalStorage";
 
 const emergencyTypes = [
-  { id: "flood", labelKey: "flood", icon: "🌊", color: "text-blue-500" },
-  { id: "fire", labelKey: "fire", icon: "🔥", color: "text-orange-500" },
-  { id: "medical", labelKey: "medical", icon: "🏥", color: "text-red-500" },
-  { id: "accident", labelKey: "accident", icon: "🚗", color: "text-yellow-500" },
-  { id: "infrastructure", labelKey: "infrastructure", icon: "🏗️", color: "text-gray-500" },
-  { id: "other", labelKey: "other", icon: "⚠️", color: "text-purple-500" },
+  { id: "flood", labelKey: "flood", icon: "🌊" },
+  { id: "fire", labelKey: "fire", icon: "🔥" },
+  { id: "medical", labelKey: "medical", icon: "🏥" },
+  { id: "accident", labelKey: "accident", icon: "🚗" },
+  { id: "infrastructure", labelKey: "infrastructure", icon: "🏗️" },
+  { id: "other", labelKey: "other", icon: "⚠️" },
 ];
 
 const requiredSkillKeys = [
@@ -31,6 +32,15 @@ const requiredSkillKeys = [
 
 const urgencyLevels = ["low", "medium", "high"] as const;
 
+// Predefined locations for quick selection
+const quickLocations = [
+  "Sector 18, Noida",
+  "Connaught Place, New Delhi",
+  "Gurugram Cyber City",
+  "Indirapuram, Ghaziabad",
+  "Dwarka Sector 21, New Delhi",
+];
+
 const EmergencyRequest = () => {
   const { t } = useLanguage();
   const { addEmergency } = useEmergencies();
@@ -43,12 +53,31 @@ const EmergencyRequest = () => {
     skill: "",
     urgency: "" as "" | "low" | "medium" | "high",
     description: "",
+    coordinates: null as { lat: number; lng: number } | null,
   });
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showMap, setShowMap] = useState(false);
 
   const handleTypeSelect = (typeId: string, labelKey: string) => {
     setFormData({ ...formData, type: typeId, typeLabel: t(labelKey) });
+  };
+
+  const handleLocationSelect = (location: { lat: number; lng: number; address: string }) => {
+    setFormData({ 
+      ...formData, 
+      location: location.address,
+      coordinates: { lat: location.lat, lng: location.lng }
+    });
+  };
+
+  const handleQuickLocation = (loc: string) => {
+    const coords = delhiNCRLocations[loc as keyof typeof delhiNCRLocations];
+    setFormData({
+      ...formData,
+      location: loc,
+      coordinates: coords || null,
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,6 +104,7 @@ const EmergencyRequest = () => {
       skill: formData.skill,
       urgency: formData.urgency,
       description: formData.description,
+      coordinates: formData.coordinates || undefined,
     });
     
     setIsSubmitting(false);
@@ -102,9 +132,19 @@ const EmergencyRequest = () => {
           <h1 className="text-2xl font-bold text-foreground mb-2 animate-fade-in">
             {t("requestSubmitted")}
           </h1>
-          <p className="text-muted-foreground mb-8 max-w-xs animate-fade-in" style={{ animationDelay: "100ms" }}>
+          <p className="text-muted-foreground mb-6 max-w-xs animate-fade-in" style={{ animationDelay: "100ms" }}>
             {t("matchingVolunteers")}
           </p>
+          
+          {/* Mini Map Preview */}
+          {formData.coordinates && (
+            <div className="w-full max-w-sm mb-4 animate-slide-up" style={{ animationDelay: "150ms" }}>
+              <LocationMap
+                emergencies={[{ ...formData.coordinates, label: formData.location }]}
+                className="h-32"
+              />
+            </div>
+          )}
           
           {/* Emergency Card */}
           <div className="card-elevated w-full max-w-sm text-left animate-slide-up" style={{ animationDelay: "200ms" }}>
@@ -138,11 +178,6 @@ const EmergencyRequest = () => {
                   <span className="text-xs font-medium text-warning">Finding Volunteers</span>
                 </div>
               </div>
-              {formData.description && (
-                <div className="pt-3 border-t border-border">
-                  <p className="text-sm text-muted-foreground">{formData.description}</p>
-                </div>
-              )}
             </div>
           </div>
           
@@ -172,7 +207,7 @@ const EmergencyRequest = () => {
               variant="outline"
               onClick={() => {
                 setSubmitted(false);
-                setFormData({ type: "", typeLabel: "", location: "", skill: "", urgency: "", description: "" });
+                setFormData({ type: "", typeLabel: "", location: "", skill: "", urgency: "", description: "", coordinates: null });
               }}
             >
               {t("submitAnother")}
@@ -205,7 +240,7 @@ const EmergencyRequest = () => {
         <div className="flex items-center gap-2 mb-6 p-3 rounded-xl bg-success/5 border border-success/10">
           <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
           <span className="text-sm text-foreground">
-            <span className="font-semibold text-success">{stats.availableVolunteers}</span> volunteers ready to help
+            <span className="font-semibold text-success">{stats.availableVolunteers}</span> volunteers ready in Delhi NCR
           </span>
         </div>
 
@@ -232,9 +267,49 @@ const EmergencyRequest = () => {
             </div>
           </div>
 
-          {/* Location */}
+          {/* Location with Map */}
           <div className="animate-slide-up" style={{ animationDelay: "150ms" }}>
-            <label className="form-label">{t("location")}</label>
+            <label className="form-label flex items-center justify-between">
+              {t("location")}
+              <button
+                type="button"
+                onClick={() => setShowMap(!showMap)}
+                className="text-xs text-primary font-medium flex items-center gap-1"
+              >
+                <Map className="w-3 h-3" />
+                {showMap ? "Hide Map" : "Show Map"}
+              </button>
+            </label>
+            
+            {/* Quick Location Buttons */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {quickLocations.map((loc) => (
+                <button
+                  key={loc}
+                  type="button"
+                  onClick={() => handleQuickLocation(loc)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    formData.location === loc
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  {loc.split(",")[0]}
+                </button>
+              ))}
+            </div>
+            
+            {/* Map */}
+            {showMap && (
+              <div className="mb-3">
+                <LocationMap
+                  onLocationSelect={handleLocationSelect}
+                  interactive
+                  className="h-40"
+                />
+              </div>
+            )}
+            
             <div className="relative">
               <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
@@ -245,6 +320,11 @@ const EmergencyRequest = () => {
                 className="input-mobile pl-12"
               />
             </div>
+            {formData.coordinates && (
+              <p className="text-xs text-muted-foreground mt-1">
+                📍 {formData.coordinates.lat.toFixed(4)}, {formData.coordinates.lng.toFixed(4)}
+              </p>
+            )}
           </div>
 
           {/* Required Skill */}
